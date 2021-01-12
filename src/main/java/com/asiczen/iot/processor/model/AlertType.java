@@ -1,0 +1,8 @@
+package com.asiczen.iot.processor.model;
+
+public enum AlertType {
+
+	OVER_SPEED, GEO_FENCE_VIOLATION, FUEL_THEFT, RUNNING_OUT_OF_FUEL, SLOW_SPEED, ENGINE_ON, ENGINE_OFF,
+	ENGINE_ON_VEHICLE_NOT_MOVING
+
+}

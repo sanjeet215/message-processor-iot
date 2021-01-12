@@ -1,0 +1,48 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: message-consumer-app
+  cloud:
+    stream:
+      bindings:
+        original-message:
+          contentType: application/json
+          destination: orgmsg-exchange-test
+          group: orgmsg-queue-test
+        transformed-messages:
+          contentType: application/json
+          destination: convertedMsgSource
+        alert-message-queue:
+          contentType: application/json
+          destination: alert-exchange
+      rabbit:
+        bindings:
+          original-message:
+            consumer:
+             bindQueue: false
+             bindingRoutingKey: '#'
+             declareExchange: false
+             exchangeType: topic
+             queueNameGroupOnly: true
+          transformed-messages:
+            consumer:
+              exchangeType: topic
+          alert-message-queue:
+            consumer:
+              exchangeType: direct    
+  rabbitmq:
+    host: localhost
+    password: guest
+    port: 5672
+    username: guest
+
+    
+logging:
+  level:
+    root: INFO
+    org.springframework: ERROR
+    com.asiczen: TRACE
+  file:
+    name: /home/ubuntu/scorpious/app-logs/analytics-service.log
+    max-size: 10 MB    
