@@ -20,8 +20,10 @@ public class DailyVehicleStatusResetImpl implements DailyVehicleStatusReset {
 	@Override
 	public void resetVehicleStatus() {
 
-		redisRepo.getAllVehicleData().parallelStream().forEach(record -> {
-			publishService.publishEodMessages(record);
+		redisRepo.getAllVehicleData()
+				.parallelStream()
+				.forEach(record -> {
+							publishService.publishEodMessages(record);
 			resetRecord(record);
 			redisRepo.save(record);
 		});
