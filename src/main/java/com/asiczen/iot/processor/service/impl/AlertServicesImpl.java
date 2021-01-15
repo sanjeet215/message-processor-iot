@@ -122,6 +122,12 @@ public class AlertServicesImpl implements AlertServices {
     public void setDelayedMessageFlag(TransformedMessage message, TransformedMessage oldmessage) {
         long timeDifference = Math.abs(message.getTimestamp().getTime() - oldmessage.getTimestamp().getTime());
         message.setDelayedMessageFlag((TimeUnit.MILLISECONDS.toSeconds(timeDifference) > 300) ? true : false);
+
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        log.info("Time difference between last 2 messages is  {} ", timeDifference);
+        log.info(">>>>>>>>>>>>>>>> if {} is more than 5 minutes i.e 300 seconds then this flag will be set",timeDifference);
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
     }
 
 }

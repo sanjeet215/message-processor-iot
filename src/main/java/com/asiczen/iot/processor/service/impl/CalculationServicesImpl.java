@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CalculationServicesImpl implements CalculationServices {
 
     private static final double AVERAGE_RADIUS_OF_EARTH = 6371;
-    private static final double DISTANCE_CORRECTION = 12.0d; // In meters
+    private static final double DISTANCE_CORRECTION = 15; // In meters
     private static final double DISTANCE_PERCENT_CORRECTION = 0.75d;
 
     @Override
@@ -56,21 +56,26 @@ public class CalculationServicesImpl implements CalculationServices {
     }
 
     @Override
-    public void updateStationaryVehicleCoOrdinates(TransformedMessage transformedMessage, TransformedMessage oldMessage,
-                                                   double distanceInKm) {
+    public void updateStationaryVehicleCoOrdinates(TransformedMessage transformedMessage, TransformedMessage oldMessage, double distanceInKm) {
 
-        if (distanceInKm * 1000d <= DISTANCE_CORRECTION) {
+        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>");
+        log.info("DISTANCE_CORRECTION factor is {} ", DISTANCE_CORRECTION);
+        log.info("Distance In Kms is  {} ", distanceInKm);
+
+        if (distanceInKm * 1000 <= DISTANCE_CORRECTION) {
 
             transformedMessage.setLat(oldMessage.getLat());
             transformedMessage.setLng(oldMessage.getLng());
             transformedMessage.setCalulatedDistance(0);
             transformedMessage.setCalculatedDailyDistance(oldMessage.getCalculatedDailyDistance());
             // else update the speed, distance, total distance
+            log.info("Vehicle is not moving logic is applied");
         } else {
             transformedMessage.setCalulatedDistance(distanceInKm);
             transformedMessage.setCalculatedDailyDistance(oldMessage.getCalculatedDailyDistance() + distanceInKm);
+            log.info("Vehicle moving logic is applied.");
         }
-
+        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>");
     }
 
     // Method checks if engine is On and vechile is not moving then set idleEngineOn
@@ -109,8 +114,7 @@ public class CalculationServicesImpl implements CalculationServices {
     }
 
     @Override
-    public void checkEngineOffAndVehicleNotMoving(TransformedMessage transformedMessage, TransformedMessage oldMessage,
-                                                  double distanceInKm) {
+    public void checkEngineOffAndVehicleNotMoving(TransformedMessage transformedMessage, TransformedMessage oldMessage, double distanceInKm) {
 
         if (!transformedMessage.isKeyOn() && ((distanceInKm * 1000d) < DISTANCE_CORRECTION)) {
             transformedMessage.setIdleEngineOff(true);
@@ -124,8 +128,7 @@ public class CalculationServicesImpl implements CalculationServices {
     }
 
     @Override
-    public void checkEngineOnAndVehicleMovingTime(TransformedMessage transformedMessage, TransformedMessage oldMessage,
-                                                  double distanceInKm) {
+    public void checkEngineOnAndVehicleMovingTime(TransformedMessage transformedMessage, TransformedMessage oldMessage, double distanceInKm) {
 
         if (transformedMessage.isKeyOn() && ((distanceInKm * 1000d) > DISTANCE_CORRECTION)) {
             transformedMessage.setVehicleMovingFlag(true);
