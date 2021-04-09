@@ -1,14 +1,26 @@
 package com.asiczen.iot.processor.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.asiczen.iot.processor.exception.InternalServerError;
+import com.asiczen.iot.processor.model.distancematrixresponse.DistanceMatrixResponseDTO;
+import com.asiczen.iot.processor.model.distancematrixresponse.Location;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.asiczen.iot.processor.model.TransformedMessage;
 import com.asiczen.iot.processor.service.CalculationServices;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
@@ -17,6 +29,16 @@ public class CalculationServicesImpl implements CalculationServices {
     private static final double AVERAGE_RADIUS_OF_EARTH = 6371;
     private static final double DISTANCE_CORRECTION = 15; // In meters
     private static final double DISTANCE_PERCENT_CORRECTION = 0.75d;
+
+    private static final String TOKEN = "AIzaSyAdWZcIlR6JQCxy3dwN83p385SMjAGsUTs";
+
+    private static final String exceptionMessage = "There is an error while calculate distance.";
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Value("${map.url}")
+    private String googleApiUrl;
 
     @Override
     public double calculateSpeedInKmHour(double distanceinMeter, int second) {
@@ -48,6 +70,51 @@ public class CalculationServicesImpl implements CalculationServices {
 
         // Multiply 1.609344 to get distance in KM
         return Math.abs((c * AVERAGE_RADIUS_OF_EARTH * 1.609344d) * (DISTANCE_PERCENT_CORRECTION));
+        //Google api call for distance accuracy
+//        Location startLocation = new Location();
+//        startLocation.setLat(locaton1.getLat());
+//        startLocation.setLng(locaton1.getLng());
+//        Location endLocation = new Location();
+//        endLocation.setLat(location2.getLat());
+//        endLocation.setLng(location2.getLng());
+//        int distanceInMeter = getResponseFromGoogleApi(startLocation, endLocation).getRows().get(0).getElements().get(0).getDistance().getValue();
+//        double distanceInKm = distanceInMeter/1000d;
+//        return distanceInKm;
+    }
+
+    private DistanceMatrixResponseDTO getResponseFromGoogleApi(Location startLocation, Location endLocation) {
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> requestParam = new HashMap<>();
+
+            String startLocationString = String.valueOf(startLocation.getLat()) + "," + String.valueOf(startLocation.getLng());
+            String endLocationString = String.valueOf(endLocation.getLat()) + "," + String.valueOf(endLocation.getLng());
+            requestParam.put("startLocation", startLocationString);
+            requestParam.put("endLocation", endLocationString);
+            requestParam.put("driving", "driving");
+            requestParam.put("en-EN", "en-EN");
+            requestParam.put("sensor", "false");
+            requestParam.put("token", TOKEN);
+            ResponseEntity<DistanceMatrixResponseDTO> responseEntity = restTemplate.getForEntity(googleApiUrl, DistanceMatrixResponseDTO.class, requestParam);
+
+            if (responseEntity.getStatusCode().value() == HttpStatus.OK.value()) {
+                return responseEntity.getBody();
+            } else {
+                throw new InternalServerError(exceptionMessage);
+            }
+
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            exception.printStackTrace();
+            log.error("Exception while getting expected distance and time");
+            throw new InternalServerError(exceptionMessage);
+        }
+
+
     }
 
     @Override
