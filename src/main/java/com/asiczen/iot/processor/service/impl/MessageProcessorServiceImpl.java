@@ -65,7 +65,7 @@ public class MessageProcessorServiceImpl implements MessageProcessorService {
                 int durationInSecond = Math.abs(calcService.differenceBetweenTwoTimeStampsInSeconds(oldMessage.getTimestamp(), transformedMessage.getTimestamp()));
                 double speedInKmPerHour = calcService.calculateSpeedInKmHour((distanceInKm * 1000d), durationInSecond);
 
-                if (distanceInKm <= 50d && speedInKmPerHour <= 200) {
+               // if (distanceInKm <= 50d && speedInKmPerHour <= 200) {
                     calcService.updateCalculatedDailyDistanceAndDistance(transformedMessage, oldMessage, distanceInKm);
                     calcService.updateCalculatedSpeed(transformedMessage, speedInKmPerHour);
                     calcService.updateStationaryVehicleCoOrdinates(transformedMessage, oldMessage, distanceInKm);
@@ -89,10 +89,10 @@ public class MessageProcessorServiceImpl implements MessageProcessorService {
 
                     msgRepo.save(transformedMessage);
                     publisher.publishMessages(transformedMessage);
-                } else {
-                    log.warn("Special processing is required.Rejecting the message for now");
-                    log.warn(incomingMessage.toString());
-                }
+//                } else {
+//                    log.warn("Special processing is required.Rejecting the message for now");
+//                    log.warn(incomingMessage.toString());
+//                }
 
             } else {
 

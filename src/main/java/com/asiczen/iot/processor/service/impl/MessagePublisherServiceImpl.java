@@ -21,6 +21,7 @@ public class MessagePublisherServiceImpl implements MessagePublisherService {
 
 	@Override
 	public void publishMessages(TransformedMessage message) {
+		log.info("Before sending to socket: {}",message);
 		publisherService.transformedMessageChannel().send(MessageBuilder.withPayload(message).build());
 	}
 
